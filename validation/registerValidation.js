@@ -26,7 +26,7 @@ function validateRegistrationInput(data) {
         errors.password = "Password must be at least 6 characters at maximu 30 characters long";
     }
     if (!Validator.equals(data.password, data.repeatedPassword)) {
-        errors.password2 = "Passwords must match";
+        errors.repeatedPassword = "Passwords must match";
     }
 
     return {
