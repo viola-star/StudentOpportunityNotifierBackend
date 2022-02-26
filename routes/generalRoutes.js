@@ -4,6 +4,7 @@ const generalRoutes = require('express').Router();
 const mongoose = require("mongoose");
 
 const validateRegistrationInput = require("../validation/registerValidation.js");
+const validateLoginInput = require("../validation/loginValidation.js");
 
 const User = require("../models/User.js");
 
@@ -41,6 +42,43 @@ generalRoutes.post("/register", (req, res) => {
                         }).catch(err => console.log(err));
                     });
                 });
+            }
+        });
+    } else {
+        res.status(400).json(validation.errors);
+    }
+});
+
+generalRoutes.post("/login", (req, res) => {
+    const validation = validateLoginInput(req.body);
+    if (validation.isValid) {
+        User.findOne({ email: req.body.email }).then(user => {
+            if (user) {
+                bcrypt.compare(req.body.password, user.password, function (err, result) {
+                    if (result) {
+                        const jwtPayload = {
+                            id: user._id,
+                            email: user.email,
+                            savedArticleIds: user.savedArticleIds,
+                            collegeName: user.collegeName ? user.collegeName : "",
+                            yearOfGraduation: user.yearOfGraduation ? user.yearOfGraduation : ""
+                        }
+
+                        let expirationSeconds = 31556926; // 1 year
+                        jwt.sign(jwtPayload, process.env.SECRET, {
+                            expiresIn: expirationSeconds,
+                        }, (err, token) => {
+                            if (!err) {
+                                res.json({success: true, token: token});
+                            }
+                        });
+                    }
+                    else {
+                        res.status(400).json({ password: "Password is incorrect1" });
+                    }
+                });
+            } else {
+                res.status(404).json({ email: "Account with given email id not found!" });
             }
         });
     } else {
