@@ -5,9 +5,14 @@ const isEmpty = require("is-empty"); // unlike Validator.isEmpty checks all data
 function validateRegistrationInput(data) {
     let errors = {};
 
+    data.username = !isEmpty(data.username) ? data.username : "";
     data.email = !isEmpty(data.email) ? data.email : "";
     data.password = !isEmpty(data.password) ? data.password : "";
     data.repeatedPassword = !isEmpty(data.repeatedPassword) ? data.repeatedPassword : "";
+
+    if (Validator.isEmpty(data.username)) {
+        errors.username = "Username field is required";
+    }
 
     if (Validator.isEmpty(data.email)) {
         errors.email = "Email field is required.";
@@ -23,7 +28,7 @@ function validateRegistrationInput(data) {
     }
 
     if (!Validator.isLength(data.password, { min: 6, max: 30 })) {
-        errors.password = "Password must be at least 6 characters at maximu 30 characters long";
+        errors.password = "Password must be at least 6 characters at maximum 30 characters long";
     }
     if (!Validator.equals(data.password, data.repeatedPassword)) {
         errors.repeatedPassword = "Passwords must match";

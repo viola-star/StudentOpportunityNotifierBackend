@@ -17,11 +17,12 @@ generalRoutes.get("/viewArticles", (req, res) => {
 generalRoutes.post("/register", (req, res) => {
     const validation = validateRegistrationInput(req.body);
     if (validation.isValid) {
-        User.findOne({ email: req.body.email }).then(user => {
+        User.findOne({ username: req.body.username }).then(user => {
             if (user) {
-                res.status(400).json({ email: "An account with this email address already exists!" });
+                res.status(400).json({ username: "An account with this username already exists!" });
             } else {
                 const userToBeAdded = new User({
+                    username: req.body.username,
                     email: req.body.email,
                     password: req.body.password,
                     savedArticleIds: []
@@ -52,12 +53,13 @@ generalRoutes.post("/register", (req, res) => {
 generalRoutes.post("/login", (req, res) => {
     const validation = validateLoginInput(req.body);
     if (validation.isValid) {
-        User.findOne({ email: req.body.email }).then(user => {
+        User.findOne({ username: req.body.username }).then(user => {
             if (user) {
                 bcrypt.compare(req.body.password, user.password, function (err, result) {
                     if (result) {
                         const jwtPayload = {
                             id: user._id,
+                            username: user.username,
                             email: user.email,
                             savedArticleIds: user.savedArticleIds,
                             collegeName: user.collegeName ? user.collegeName : "",
@@ -74,11 +76,11 @@ generalRoutes.post("/login", (req, res) => {
                         });
                     }
                     else {
-                        res.status(400).json({ password: "Password is incorrect1" });
+                        res.status(400).json({ password: "Password is incorrect!" });
                     }
                 });
             } else {
-                res.status(404).json({ email: "Account with given email id not found!" });
+                res.status(404).json({ username: "Account with given username not found!" });
             }
         });
     } else {
