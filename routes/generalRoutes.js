@@ -2,16 +2,44 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const generalRoutes = require('express').Router();
 const mongoose = require("mongoose");
+const cheerio = require('cheerio');
+const { default: axios } = require("axios");
 
 const validateRegistrationInput = require("../validation/registerValidation.js");
 const validateLoginInput = require("../validation/loginValidation.js");
 
 const User = require("../models/User.js");
 
-generalRoutes.get("/viewArticles", (req, res) => {
-    const date = new Date();// for testing purposes
-    const scrapedArticles = [{ "field1": "Hello World1", "hours": date.getHours(), "minutes": date.getMinutes(), "seconds": date.getSeconds() }, { "field1": "Hello World2" }];
-    res.json(scrapedArticles);
+generalRoutes.get("/viewArticles", async (req, res) => {
+    return await axios.get('https://internshala.com/internships').then(response => {
+        let internships = [];
+        let $ = cheerio.load(response.data);
+
+        $('.internship_meta').each((i,ele)=>{
+
+
+            //get title , link to apply , location , start date , apply date , stipend
+            const title = $(ele).find('.heading_4_5 a').text();
+            const link = "https://internshala.com"+ $(ele).find('a').attr('href');
+            const location = $(ele).find('#location_names').text();
+            const start_date = $(ele).find('.start_immediately_desktop').text();
+            const apply_by = $(ele).find( ".apply_by .item_body").text();
+            const stipend = "₹" + $(ele).find( ".stipend").text();
+            //console.log(title , link , location , start_date ,apply_by, stipend);
+
+            //put in array format
+            let internship = {
+                'title' : title,
+                'link' : link,
+                'location' : location,
+                'start_date' : start_date,
+                'apply_by' : apply_by,
+                'stipend' : stipend
+            }
+            internships.push(internship);
+        })
+        res.json(internships);
+    }).catch(err => console.log(err));
 });
 
 generalRoutes.post("/register", (req, res) => {
