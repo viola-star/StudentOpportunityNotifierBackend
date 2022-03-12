@@ -21,7 +21,7 @@ generalRoutes.get("/viewArticles", async (req, res) => {
             //get title , link to apply , location , start date , apply date , stipend
             const title = $(ele).find('.heading_4_5 a').text();
             const link = "https://internshala.com"+ $(ele).find('a').attr('href');
-            const location = $(ele).find('#location_names').text();
+            const location = $(ele).find('#location_names').text().replace(/\s\s+/g,"");
             const start_date = $(ele).find('.start_immediately_desktop').text();
             const apply_by = $(ele).find( ".apply_by .item_body").text();
             const stipend = "₹" + $(ele).find( ".stipend").text();
