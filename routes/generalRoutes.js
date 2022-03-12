@@ -123,8 +123,8 @@ generalRoutes.post("/register", (req, res) => {
                     port: 587,
                     secure: false, // true for 465, false for other ports
                     auth: {
-                        user: 'notifierstudent123@gmail.com', 
-                        pass: 'miniProj123'  
+                        user: '', 
+                        pass: ''  
                     },
                     tls:{
                     rejectUnauthorized:false
