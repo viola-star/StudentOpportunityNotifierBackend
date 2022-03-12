@@ -84,8 +84,7 @@ generalRoutes.post("/register", (req, res) => {
                 res.status(400).json({ username: "An account with this username already exists!" });
             } else {
                 const userToBeAdded = new User({
-                    firstName: req.body.firstName,
-                    lastName: req.body.lastName,
+                    name: req.body.name, 
                     username: req.body.username,
                     email: req.body.email,
                     password: req.body.password,
