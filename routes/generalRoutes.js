@@ -50,6 +50,8 @@ generalRoutes.post("/register", (req, res) => {
                 res.status(400).json({ username: "An account with this username already exists!" });
             } else {
                 const userToBeAdded = new User({
+                    firstName: req.body.firstName,
+                    lastName: req.body.lastName,
                     username: req.body.username,
                     email: req.body.email,
                     password: req.body.password,
@@ -87,6 +89,8 @@ generalRoutes.post("/login", (req, res) => {
                     if (result) {
                         const jwtPayload = {
                             id: user._id,
+                            firstName: req.body.firstName,
+                            lastName: req.body.lastName,
                             username: user.username,
                             email: user.email,
                             savedArticleIds: user.savedArticleIds,
