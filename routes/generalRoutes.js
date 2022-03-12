@@ -149,7 +149,6 @@ generalRoutes.post("/register", (req, res) => {
                     //res.render('contact', {msg:'Email has been sent'});
                 });
                 
-                
             }
         });
     } else {
