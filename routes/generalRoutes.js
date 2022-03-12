@@ -13,36 +13,70 @@ const User = require("../models/User.js");
 const { json } = require("body-parser");
 const { request } = require("express");
 
+const getScrapedIntershipData = (data) => {
+    let internships = [];
+    let $ = cheerio.load(data);
+
+    $('.internship_meta').each((i, ele) => {
+        //get title , link to apply , location , start date , apply date , stipend
+        const title = $(ele).find('.heading_4_5 a').text();
+        const link = "https://internshala.com" + $(ele).find('a').attr('href');
+        const location = $(ele).find('#location_names').text().replace(/\s\s+/g, "");
+        const start_date = $(ele).find('.start_immediately_desktop').text();
+        const apply_by = $(ele).find(".apply_by .item_body").text();
+        const stipend = "₹" + $(ele).find(".stipend").text();
+        //console.log(title , link , location , start_date ,apply_by, stipend);
+        //put in array format
+        let internship = {
+            'title': title,
+            'link': link,
+            'location': location,
+            'start_date': start_date,
+            'apply_by': apply_by,
+            'stipend': stipend
+        }
+        internships.push(internship);
+    })
+
+    return internships;
+}
+
+const getScrapedPlacementData = (data) => {
+    let placements = [];
+    let $ = cheerio.load(data);
+
+    $('.internship_meta').each((i, ele) => {
+        //get title , link to apply , location , start date , apply date , stipend
+        const title = $(ele).find('.heading_4_5 a').text();
+        const link = "https://internshala.com" + $(ele).find('a').attr('href');
+        const location = $(ele).find('#location_names').text().replace(/\s\s+/g, "");
+        const start_date = $(ele).find('.start_immediately_desktop').text();
+        const apply_by = $(ele).find(".apply_by .item_body").text();
+        const stipend = "₹" + $(ele).find(".stipend").text();
+        //console.log(title , link , location , start_date ,apply_by, stipend);
+        //put in array format
+        let internship = {
+            'title': title,
+            'link': link,
+            'location': location,
+            'start_date': start_date,
+            'apply_by': apply_by,
+            'stipend': stipend
+        }
+        placements.push(internship);
+    })
+
+    return placements;
+}
+
 generalRoutes.get("/viewArticles", async (req, res) => {
-    return await axios.get('https://internshala.com/internships').then(response => {
-        let internships = [];
-        let $ = cheerio.load(response.data);
-
-        $('.internship_meta').each((i,ele)=>{
-
-
-            //get title , link to apply , location , start date , apply date , stipend
-            const title = $(ele).find('.heading_4_5 a').text();
-            const link = "https://internshala.com"+ $(ele).find('a').attr('href');
-            const location = $(ele).find('#location_names').text().replace(/\s\s+/g,"");
-            const start_date = $(ele).find('.start_immediately_desktop').text();
-            const apply_by = $(ele).find( ".apply_by .item_body").text();
-            const stipend = "₹" + $(ele).find( ".stipend").text();
-            //console.log(title , link , location , start_date ,apply_by, stipend);
-
-            //put in array format
-            let internship = {
-                'title' : title,
-                'link' : link,
-                'location' : location,
-                'start_date' : start_date,
-                'apply_by' : apply_by,
-                'stipend' : stipend
-            }
-            internships.push(internship);
-        })
-        res.json(internships);
-    }).catch(err => console.log(err));
+    return await axios.all([
+        axios.get('https://internshala.com/internships'),
+        axios.get('https://internshala.com/internships') // SUBSTITUTE WITH URL2
+    ]).then(axios.spread((response1, response2) => {
+        scrapedArticles = getScrapedIntershipData(response1.data).concat(getScrapedPlacementData(response2.data));
+        res.json(scrapedArticles);
+    })).catch(err => console.log(err));
 });
 
 generalRoutes.post("/register", (req, res) => {
@@ -54,6 +88,8 @@ generalRoutes.post("/register", (req, res) => {
             } else {
 
                 const userToBeAdded = new User({
+                    firstName: req.body.firstName,
+                    lastName: req.body.lastName,
                     username: req.body.username,
                     email: req.body.email,
                     password: req.body.password,
@@ -131,6 +167,8 @@ generalRoutes.post("/login", (req, res) => {
                     if (result) {
                         const jwtPayload = {
                             id: user._id,
+                            firstName: req.body.firstName,
+                            lastName: req.body.lastName,
                             username: user.username,
                             email: user.email,
                             savedArticleIds: user.savedArticleIds,
@@ -143,7 +181,7 @@ generalRoutes.post("/login", (req, res) => {
                             expiresIn: expirationSeconds,
                         }, (err, token) => {
                             if (!err) {
-                                res.json({success: true, token: token});
+                                res.json({ success: true, token: token });
                             }
                         });
                     }
