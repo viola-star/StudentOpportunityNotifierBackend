@@ -6,6 +6,7 @@ const passport = require("passport");
 
 const generalRoutes = require("./routes/generalRoutes.js");
 const adminRoutes = require("./routes/adminRoutes.js");
+const loggedInRoutes = require("./routes/loggedInRoutes.js");
 const { default: mongoose } = require("mongoose");
 
 const app = express();
@@ -19,6 +20,7 @@ usePassport(passport);
 
 app.use('/api', generalRoutes);  
 app.use('/api/admin', adminRoutes);  
+app.use('/api', loggedInRoutes);  
 
 
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true }).then(() => console.log("MongoDB connected successfully!")).catch((err) => console.log(err));
