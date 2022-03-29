@@ -50,20 +50,20 @@ const getScrapedPlacementData = (data) => {
         const title = $(ele).find('.heading_4_5 a').text();
         const link = "https://internshala.com" + $(ele).find('a').attr('href');
         const location = $(ele).find('#location_names').text().replace(/\s\s+/g, "");
-        const start_date = $(ele).find('.start_immediately_desktop').text();
-        const apply_by = $(ele).find(".apply_by .item_body").text();
-        const stipend = "₹" + $(ele).find(".stipend").text();
+        const start_date = $(ele).find('div.individual_internship_details.individual_internship_job > div > div:nth-child(0) > div > div.item_body').text();
+        const ctc =  "₹" + $(ele).find("div.individual_internship_details.individual_internship_job > div > div:nth-child(1) > div:nth-child(2) > div.item_body").text().replace(/\s\s+/g, "");
+        const apply_by = $(ele).find("div.individual_internship_details.individual_internship_job > div > div:nth-child(2) > div > div.item_body").text();
         //console.log(title , link , location , start_date ,apply_by, stipend);
         //put in array format
-        let internship = {
+        let job = {
             'title': title,
             'link': link,
             'location': location,
-            'start_date': start_date,
+            'start_date' : "Immediately",
             'apply_by': apply_by,
-            'stipend': stipend
+            'CTC': ctc
         }
-        placements.push(internship);
+        placements.push(job);
     })
 
     return placements;
@@ -72,7 +72,7 @@ const getScrapedPlacementData = (data) => {
 generalRoutes.get("/viewArticles", async (req, res) => {
     return await axios.all([
         axios.get('https://internshala.com/internships'),
-        axios.get('https://internshala.com/internships') // SUBSTITUTE WITH URL2
+        axios.get('https://internshala.com/jobs') // SUBSTITUTE WITH URL2
     ]).then(axios.spread((response1, response2) => {
         scrapedArticles = getScrapedIntershipData(response1.data).concat(getScrapedPlacementData(response2.data));
         res.json(scrapedArticles);
