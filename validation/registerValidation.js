@@ -5,18 +5,14 @@ const isEmpty = require("is-empty"); // unlike Validator.isEmpty checks all data
 function validateRegistrationInput(data) {
     let errors = {};
 
-    data.firstName = !isEmpty(data.firstName) ? data.firstName : "";
-    data.lastName = !isEmpty(data.lastName) ? data.lastName : "";
+    data.name = !isEmpty(data.name) ? data.name : "";
     data.username = !isEmpty(data.username) ? data.username : "";
     data.email = !isEmpty(data.email) ? data.email : "";
     data.password = !isEmpty(data.password) ? data.password : "";
     data.repeatedPassword = !isEmpty(data.repeatedPassword) ? data.repeatedPassword : "";
 
-    if (Validator.isEmpty(data.firstName)) {
-        errors.firstName = "First name field is required";
-    }
-    if (Validator.isEmpty(data.lastName)) {
-        errors.lastName = "Last name field is required";
+    if (Validator.isEmpty(data.name)) {
+        errors.name = "Name field is required";
     }
     if (Validator.isEmpty(data.username)) {
         errors.username = "Username field is required";

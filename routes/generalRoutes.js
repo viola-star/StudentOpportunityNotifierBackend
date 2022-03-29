@@ -88,8 +88,7 @@ generalRoutes.post("/register", (req, res) => {
             } else {
 
                 const userToBeAdded = new User({
-                    firstName: req.body.firstName,
-                    lastName: req.body.lastName,
+                    name: req.body.name, 
                     username: req.body.username,
                     email: req.body.email,
                     password: req.body.password,
@@ -124,8 +123,8 @@ generalRoutes.post("/register", (req, res) => {
                     port: 587,
                     secure: false, // true for 465, false for other ports
                     auth: {
-                        user: 'notifierstudent123@gmail.com', 
-                        pass: 'miniProj123'  
+                        user: '', 
+                        pass: ''  
                     },
                     tls:{
                     rejectUnauthorized:false
@@ -149,7 +148,6 @@ generalRoutes.post("/register", (req, res) => {
                     console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
                     //res.render('contact', {msg:'Email has been sent'});
                 });
-                
                 
             }
         });
