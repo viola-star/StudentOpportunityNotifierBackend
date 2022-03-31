@@ -28,7 +28,7 @@ loggedInRoutes.post("/saveArticle", (req, res) => {
     const userId = req.body.userId
     const givenArticle = req.body.article
 
-    Article.findOne({ title: { $eq: givenArticle.title } }).then((article) => {
+    Article.findOne({ link: { $eq: givenArticle.link } }).then((article) => {
         if (!article) {
             const articleToBeSaved = new Article({
                 title: givenArticle.title,
@@ -60,5 +60,25 @@ loggedInRoutes.post("/saveArticle", (req, res) => {
         }
     })
 });
+
+loggedInRoutes.delete("/deleteSavedArticle", (req, res) => {
+    const userId = req.body.userId;
+    const articleId = req.body.articleId;
+    Article.findByIdAndDelete(articleId, (err, article) => {
+        if (err) {
+            console.log(err);
+            res.status(400).json({ error: err });
+        } else {
+            User.updateOne({_id: userId}, {$pull: {"savedArticleIds": {$in : [articleId]}}}, (error, user) => {
+                if (error) {
+                    console.log(error); 
+                    res.status(400).json({ error: error });
+                } else {
+                    res.status(200).json({ success: "true" })
+                }
+            })
+        }
+    });
+})
 
 module.exports = loggedInRoutes;
