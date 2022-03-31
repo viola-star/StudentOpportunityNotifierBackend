@@ -64,21 +64,14 @@ loggedInRoutes.post("/saveArticle", (req, res) => {
 loggedInRoutes.delete("/deleteSavedArticle", (req, res) => {
     const userId = req.body.userId;
     const articleId = req.body.articleId;
-    Article.findByIdAndDelete(articleId, (err, article) => {
-        if (err) {
-            console.log(err);
-            res.status(400).json({ error: err });
+    User.updateOne({_id: userId}, {$pull: {"savedArticleIds": {$in : [articleId]}}}, (error, user) => {
+        if (error) {
+            console.log(error); 
+            res.status(400).json({ error: error });
         } else {
-            User.updateOne({_id: userId}, {$pull: {"savedArticleIds": {$in : [articleId]}}}, (error, user) => {
-                if (error) {
-                    console.log(error); 
-                    res.status(400).json({ error: error });
-                } else {
-                    res.status(200).json({ success: "true" })
-                }
-            })
+            res.status(200).json({ success: "true" })
         }
-    });
+    })
 })
 
 module.exports = loggedInRoutes;
