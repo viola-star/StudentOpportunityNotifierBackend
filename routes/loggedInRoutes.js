@@ -18,7 +18,7 @@ loggedInRoutes.get("/:userId/getSavedArticles", (req, res) => {
                 }
             })
         } else {
-            console.log("Not found")
+            //console.log("Not found")
             res.status(400).json({ error: "User not found" });
         }
     })

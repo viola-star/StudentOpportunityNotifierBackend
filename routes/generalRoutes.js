@@ -86,69 +86,73 @@ generalRoutes.post("/register", (req, res) => {
             if (user) {
                 res.status(400).json({ username: "An account with this username already exists!" });
             } else {
-
-                const userToBeAdded = new User({
-                    name: req.body.name, 
-                    username: req.body.username,
-                    email: req.body.email,
-                    password: req.body.password,
-                    savedArticleIds: []
-                });
-                if (req.body.collegeName) {
-                    userToBeAdded.collegeName = req.body.collegeName;
-                }
-                if (req.body.yearOfGraduation) {
-                    userToBeAdded.yearOfGraduation = req.body.yearOfGraduation;
-                }
-
-                const noOfSaltRounds = 10;
-                bcrypt.genSalt(noOfSaltRounds, (error, salt) => {
-                    bcrypt.hash(req.body.password, salt, (err, hashedPassword) => {
-                        userToBeAdded.password = hashedPassword;
-                        userToBeAdded.save().then(user => {
-                            res.json(user);
-                        }).catch(err => console.log(err));
-                    });
-                });
-
-                const output = `
-                    <h3>Thank you for registering ${req.body.username}!</h3>
-                    <p>Now sit back & relax , let us bring opportunities to you</p>
-                `;
-
-                //sent email to user on successful registration 
-                // create reusable transporter object using the default SMTP transport
-                let transporter = nodemailer.createTransport({
-                    host: 'smtp.gmail.com',
-                    port: 587,
-                    secure: false, // true for 465, false for other ports
-                    auth: {
-                        user: '', 
-                        pass: ''  
-                    },
-                    tls:{
-                    rejectUnauthorized:false
+                User.findOne({ email: req.body.email }).then(user => {
+                    if (user) {
+                        res.status(400).json({ email: "An account with this email already exists!" });
+                    } else {
+                        const userToBeAdded = new User({
+                            name: req.body.name, 
+                            username: req.body.username,
+                            email: req.body.email,
+                            password: req.body.password,
+                            savedArticleIds: []
+                        });
+                        if (req.body.collegeName) {
+                            userToBeAdded.collegeName = req.body.collegeName;
+                        }
+                        if (req.body.yearOfGraduation) {
+                            userToBeAdded.yearOfGraduation = req.body.yearOfGraduation;
+                        }
+        
+                        const noOfSaltRounds = 10;
+                        bcrypt.genSalt(noOfSaltRounds, (error, salt) => {
+                            bcrypt.hash(req.body.password, salt, (err, hashedPassword) => {
+                                userToBeAdded.password = hashedPassword;
+                                userToBeAdded.save().then(user => {
+                                    res.json(user);
+                                }).catch(err => console.log(err));
+                            });
+                        });
+        
+                        const output = `
+                            <h3>Thank you for registering ${req.body.username}!</h3>
+                            <p>Now sit back & relax , let us bring opportunities to you</p>
+                        `;
+        
+                        //sent email to user on successful registration 
+                        // create reusable transporter object using the default SMTP transport
+                        let transporter = nodemailer.createTransport({
+                            host: 'smtp.gmail.com',
+                            port: 587,
+                            secure: false, // true for 465, false for other ports
+                            auth: {
+                                user: '', 
+                                pass: ''  
+                            },
+                            tls:{
+                            rejectUnauthorized:false
+                            }
+                        });
+        
+                        // setup email data 
+                        let mailOptions = {
+                            from: '"Student NotifierHut" <notifierstudent123@gmail.com>', // sender address
+                            to: `${req.body.email}`, // list of receivers
+                            subject: 'Registration successful!', // Subject line
+                            html: output // html body
+                        };
+        
+                        // send mail with defined transport object
+                        transporter.sendMail(mailOptions, (error, info) => {
+                            if (error) {
+                                return console.log(error);
+                            }
+                            console.log('Message sent: %s', info.messageId);   
+                            console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+                            //res.render('contact', {msg:'Email has been sent'});
+                        });
                     }
                 });
-
-                // setup email data 
-                let mailOptions = {
-                    from: '"Student NotifierHut" <notifierstudent123@gmail.com>', // sender address
-                    to: `${req.body.email}`, // list of receivers
-                    subject: 'Registration successful!', // Subject line
-                    html: output // html body
-                };
-
-                // send mail with defined transport object
-                transporter.sendMail(mailOptions, (error, info) => {
-                    if (error) {
-                        return console.log(error);
-                    }
-                    console.log('Message sent: %s', info.messageId);   
-                    console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
-                    //res.render('contact', {msg:'Email has been sent'});
-                });
-                
             }
         });
     } else {
