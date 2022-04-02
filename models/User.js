@@ -26,7 +26,9 @@ const UserSchema = new mongoose.Schema({
     },
     yearOfGraduation: {
         type: Number
-    }
+    },
+    resetToken:String,
+    expireToken:Date
 });
 
 module.exports = User = mongoose.model("users", UserSchema);

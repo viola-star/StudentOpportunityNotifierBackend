@@ -5,6 +5,9 @@ const mongoose = require("mongoose");
 const cheerio = require('cheerio');
 const { default: axios } = require("axios");
 const nodemailer = require('nodemailer');
+let cron = require('node-cron');
+const crypto = require('crypto');
+const user = require('../models/User.js');
 
 const validateRegistrationInput = require("../validation/registerValidation.js");
 const validateLoginInput = require("../validation/loginValidation.js");
@@ -12,6 +15,41 @@ const validateLoginInput = require("../validation/loginValidation.js");
 const User = require("../models/User.js");
 const { json } = require("body-parser");
 const { request } = require("express");
+
+/*
+cron.schedule('* * * * *', () => {
+    console.log('running a task every minute');
+  });
+
+const sendNoti = cron.schedule('* * * * *', () =>{
+    sendMail();
+})
+
+function sendMail(){
+
+    let mailTransporter = nodemailer.createTransport({
+        service : 'gmail',
+        port : 587,
+        secure : 'false',
+        auth : 
+        {
+            user: 'notifierstudent123@gmail.com', 
+            pass: 'miniProj123' 
+        },
+        tls : {
+            rejectUnauthorized : 'false'
+        }
+        
+    })
+
+    // setup email data 
+    let mailOptions = {
+        from: '"Student NotifierHut" <notifierstudent123@gmail.com>', // sender address
+        to: `${req.body.email}`, // list of receivers
+        subject: 'Knock! Knock! Opportunities on the door', // Subject line
+        html: output // html body
+    };
+}*/
 
 const getScrapedIntershipData = (data) => {
     let internships = [];
@@ -123,8 +161,8 @@ generalRoutes.post("/register", (req, res) => {
                     port: 587,
                     secure: false, // true for 465, false for other ports
                     auth: {
-                        user: '', 
-                        pass: ''  
+                        user: 'notifierstudent123@gmail.com', 
+                        pass: 'miniProj123'  
                     },
                     tls:{
                     rejectUnauthorized:false
@@ -194,6 +232,77 @@ generalRoutes.post("/login", (req, res) => {
     } else {
         res.status(400).json(validation.errors);
     }
+});
+
+generalRoutes.post("/reset-password", (req,res) =>{
+    crypto.randomBytes(32,(err,buffer) => {
+        if(err){
+            console.log(err);
+        }
+        const token = buffer.toString('hex');
+        user.findOne({email:req.body.email}).then(userr => {
+            if(!userr){
+                return res.status(422).json({error:"User with this email doesn't exists"});
+            }
+            userr.resetToken = token;
+            userr.expire = Date.now() + 3600000
+            userr.save().then((result) => {
+                let transporter = nodemailer.createTransport({
+                    host: 'smtp.gmail.com',
+                    port: 587,
+                    secure: false, // true for 465, false for other ports
+                    auth: {
+                        user: 'notifierstudent123@gmail.com', 
+                        pass: 'miniProj123'  
+                    },
+                    tls:{
+                    rejectUnauthorized:false
+                    }
+                });
+
+                // setup email data 
+                let mailOptions = {
+                    from: '"Student NotifierHut" <notifierstudent123@gmail.com>', // sender address
+                    to: `${req.body.email}`, // list of receivers
+                    subject: 'password reset', // Subject line
+                    html: `
+                    <p>You requested for password reset</p>
+                    <h5>click in this <a href="/reset/${token}">link</a> to reset password</h5>
+                    `
+                };
+
+                // send mail with defined transport object
+                transporter.sendMail(mailOptions, (error, info) => {
+                    if (error) {
+                        return console.log(error);
+                    }
+                    console.log('Message sent: %s', info.messageId);   
+                    console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+                });
+                res.json({message :"Check your email"});
+            })
+        })
+    })
+});
+
+generalRoutes.post('/update-password',(req,res)=>{
+    const newPassword = req.body.password;
+    const sentToken = req.body.token;
+    user.findOne({resetToken:sentToken,expireToken:{$gt:Date.now()}}).then(userr=>{
+        if(!userr){
+            return req.status(422).json({err:"Token expired!"});
+        }
+        bcrypt.hash(newPassword,12).then(hashedPassword=>{
+            user.password = hashedPassword
+            user.resetToken = undefined
+            user.expireToken = undefined
+            user.save().then((saveduser) =>{
+                res.json({message:"password updated successfully"})
+            })
+        })
+    }).catch(err =>{
+        console.log(err);
+    })
 });
 
 module.exports = generalRoutes;
