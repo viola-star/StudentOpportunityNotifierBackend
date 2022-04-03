@@ -269,7 +269,7 @@ generalRoutes.post("/reset-password", (req,res) =>{
                     subject: 'password reset', // Subject line
                     html: `
                     <p>You requested for password reset</p>
-                    <h5>click in this <a href="/reset/${token}">link</a> to reset password</h5>
+                    <h5>click in this <a href="${process.env.CLIENT_URL}/reset/${token}">link</a> to reset password</h5>
                     `
                 };
 
