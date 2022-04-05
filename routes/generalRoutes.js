@@ -288,12 +288,13 @@ generalRoutes.post("/reset-password", (req,res) =>{
 });
 
 generalRoutes.post('/update-password',(req,res)=>{
+    console.log(req.body)
     const newPassword = req.body.password;
     const sentToken = req.body.token;
     console.log(sentToken);
     User.findOne({resetToken:sentToken,expireToken:{$gt:Date.now()}}).then(user=>{
         if(!user){
-            return req.status(422).json({err:"Token expired!"});
+            return res.status(422).json({err:"Token expired!"});
         }
         bcrypt.hash(newPassword,12).then(hashedPassword=>{
             user.password = hashedPassword
