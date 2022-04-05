@@ -247,7 +247,8 @@ generalRoutes.post("/reset-password", (req,res) =>{
                 return res.status(422).json({error:"User with this email doesn't exists"});
             }
             user.resetToken = token;
-            user.expire = Date.now() + 3600000
+            user.expireToken = Date.now() + 3600000
+            console.log(user.resetToken , user.expireToken)
             user.save().then((result) => {
                 let transporter = nodemailer.createTransport({
                     host: 'smtp.gmail.com',
@@ -292,7 +293,7 @@ generalRoutes.post('/update-password',(req,res)=>{
     const newPassword = req.body.password;
     const sentToken = req.body.token;
     console.log(sentToken);
-    User.findOne({resetToken:sentToken,expireToken:{$gt:Date.now()}}).then(user=>{
+    User.findOne({resetToken : req.body.token, expireToken : {$gt:Date.now()}}).then(user=>{
         if(!user){
             return res.status(422).json({err:"Token expired!"});
         }
