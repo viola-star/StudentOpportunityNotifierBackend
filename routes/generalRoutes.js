@@ -164,7 +164,7 @@ generalRoutes.post("/register", (req, res) => {
                             secure: false, // true for 465, false for other ports
                             auth: {
                                 user: 'notifierstudent123@gmail.com', 
-                                pass: 'miniProj123'  
+                                pass: 'miniProj@123'  
                             },
                             tls:{
                             rejectUnauthorized:false
@@ -256,7 +256,7 @@ generalRoutes.post("/reset-password", (req,res) =>{
                     secure: false, // true for 465, false for other ports
                     auth: {
                         user: 'notifierstudent123@gmail.com', 
-                        pass: 'miniProj123'  
+                        pass: 'miniProj@123'  
                     },
                     tls:{
                     rejectUnauthorized:false
