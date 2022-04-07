@@ -214,9 +214,8 @@ generalRoutes.post("/login", (req, res) => {
                             yearOfGraduation: user.yearOfGraduation ? user.yearOfGraduation : ""
                         }
 
-                        let expirationSeconds = 31556926; // 1 year
                         jwt.sign(jwtPayload, process.env.SECRET, {
-                            expiresIn: expirationSeconds,
+                            expiresIn: "20h",
                         }, (err, token) => {
                             if (!err) {
                                 res.json({ success: true, token: token });
