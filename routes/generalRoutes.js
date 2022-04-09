@@ -179,7 +179,6 @@ generalRoutes.post("/login", (req, res) => {
                             collegeName: user.collegeName ? user.collegeName : "",
                             yearOfGraduation: user.yearOfGraduation ? user.yearOfGraduation : ""
                         }
-
                         
                         const articleIds = user.savedArticleIds;
                         Article.find({'_id' : {$in : user.savedArticleIds}}).then(articles =>{
@@ -222,8 +221,6 @@ generalRoutes.post("/login", (req, res) => {
                                         </p><br>`
                             };
 
-                            
-
                             cron.schedule('0 0 * * 7',() => {
                             
                                 transporter.sendMail(mailOptions, (error, info) => {
@@ -240,7 +237,7 @@ generalRoutes.post("/login", (req, res) => {
         
                         let expirationSeconds = 31556926; // 1 year
                         jwt.sign(jwtPayload, process.env.SECRET, {
-                            expiresIn: expirationSeconds,
+                            expiresIn: "20h",
                         }, (err, token) => {
                             if (!err) {
                                 res.json({ success: true, token: token });
