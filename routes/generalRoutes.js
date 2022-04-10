@@ -171,8 +171,7 @@ generalRoutes.post("/login", (req, res) => {
                     if (result) {
                         const jwtPayload = {
                             id: user._id,
-                            firstName: req.body.firstName,
-                            lastName: req.body.lastName,
+                            name: user.name,
                             username: user.username,
                             email: user.email,
                             savedArticleIds: user.savedArticleIds,
