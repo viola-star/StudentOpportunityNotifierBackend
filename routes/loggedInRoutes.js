@@ -49,7 +49,7 @@ loggedInRoutes.post("/saveArticle", (req, res) => {
                 });
             })
         } else {
-            User.findByIdAndUpdate(mongoose.Types.ObjectId(userId), { $push: { savedArticleIds: article._id } }, (err, result) => {
+            User.findByIdAndUpdate(mongoose.Types.ObjectId(userId), { $addToSet: { savedArticleIds: article._id } }, (err, result) => {
                 if (err) {
                     console.log(err);
                     res.status(400).json({ error: err });
