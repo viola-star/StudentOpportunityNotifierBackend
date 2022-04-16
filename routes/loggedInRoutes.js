@@ -74,4 +74,31 @@ loggedInRoutes.delete("/deleteSavedArticle", (req, res) => {
     })
 })
 
+loggedInRoutes.post("/updateUserDetails",(req,res) =>{
+    
+    User.findById(req.body.userId , (err,user) =>{
+
+        console.log(req.body.userId);
+        let username = req.body.name || user.name;
+        let collegeName = req.body.collegeName || user.collegeName;
+        let yearOfGraduation = req.body.yearOfGraduation || user.yearOfGraduation;
+
+        console.log(username,collegeName,yearOfGraduation);
+
+        if (!collegeName || !username || !yearOfGraduation) { 
+            req.flash('error', 'One or more fields are empty');
+            return res.redirect('/dashboard'); 
+        }
+
+        user.name = username;
+        user.collegeName = collegeName; 
+        user.yearOfGraduation = yearOfGraduation;
+
+        user.save(function (err) {
+
+            res.redirect('/dashboard');
+        });
+    })
+    
+})
 module.exports = loggedInRoutes;

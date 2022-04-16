@@ -180,60 +180,69 @@ generalRoutes.post("/login", (req, res) => {
                         }
                         
                         const articleIds = user.savedArticleIds;
-                        Article.find({'_id' : {$in : user.savedArticleIds}}).then(articles =>{
+                        console.log(articleIds);
+                        if(articleIds.length === 0){
+                            console.log("no saved articles")
+                        }
+                        else{
 
-                            let output = [];
-                            articles.forEach(article =>{
-                                //console.log(article.title);
-                                let detail = {
-                                    'title' : article.title,
-                                    'link' : article.link
-                                }
-                                output.push(detail);
-                            })
-                            console.log(output);
+                            Article.find({'_id' : {$in : user.savedArticleIds}}).then(articles =>{
 
-                            let transporter = nodemailer.createTransport({
-                                host: 'smtp.gmail.com',
-                                port: 587,
-                                secure: false, // true for 465, false for other ports
-                                auth: {
-                                    user: 'notifierstudent123@gmail.com', 
-                                    pass: 'miniProj@123'  
-                                },
-                                tls:{
-                                rejectUnauthorized:false
-                                }
+                                let output = [];
+                                articles.forEach(article =>{
+                                    //console.log(article.title);
+                                    let detail = {
+                                        'title' : article.title,
+                                        'link' : article.link
+                                    }
+                                    output.push(detail);
+                                })
+                                console.log(output);
+    
+                                let transporter = nodemailer.createTransport({
+                                    host: 'smtp.gmail.com',
+                                    port: 587,
+                                    secure: false, // true for 465, false for other ports
+                                    auth: {
+                                        user: 'notifierstudent123@gmail.com', 
+                                        pass: 'miniProj@123'  
+                                    },
+                                    tls:{
+                                    rejectUnauthorized:false
+                                    }
+                                });
+        
+                                let mailOptions = {
+                                    from: '"Student NotifierHut" <notifierstudent123@gmail.com>', // sender address
+                                    to: `${user.email}`, // list of receivers
+                                    subject: 'Knock! Knock! Opportunities on the door', // Subject line
+                                    html : `<p> 
+                                                <h4> ${output[0].title} </h4>
+                                                <a href="${output[0].link}">Check Opportunity here!</a>
+                                            </p><br>
+                                            <p> 
+                                                <h4> ${output[1].title} </h4>
+                                                <a href="${output[1].link}">Check Opportunity here!</a>
+                                            </p><br>
+                                            `
+                                };
+    
+                                cron.schedule('0 0 * * * 7',() => {
+                                
+                                    transporter.sendMail(mailOptions, (error, info) => {
+                                        if (error) {
+                                            return console.log(error);
+                                        }
+                                        console.log('Message sent: %s', info.messageId);   
+                                        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+                                    });
+    
+                                })
+                                
                             });
     
-                            let mailOptions = {
-                                from: '"Student NotifierHut" <notifierstudent123@gmail.com>', // sender address
-                                to: `${user.email}`, // list of receivers
-                                subject: 'Knock! Knock! Opportunities on the door', // Subject line
-                                html : `<p> 
-                                            <h4> ${output[0].title} </h4>
-                                            <a href="${output[0].link}">Check Opportunity here!</a>
-                                        </p><br>
-                                        <p> 
-                                            <h4> ${output[1].title} </h4>
-                                            <a href="${output[1].link}">Check Opportunity here!</a>
-                                        </p><br>`
-                            };
-
-                            cron.schedule('0 0 * * 7',() => {
-                            
-                                transporter.sendMail(mailOptions, (error, info) => {
-                                    if (error) {
-                                        return console.log(error);
-                                    }
-                                    console.log('Message sent: %s', info.messageId);   
-                                    console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
-                                });
-
-                            })
-                            
-                        });
-        
+                        }
+                                
                         let expirationSeconds = 31556926; // 1 year
                         jwt.sign(jwtPayload, process.env.SECRET, {
                             expiresIn: "20h",
