@@ -179,7 +179,7 @@ generalRoutes.post("/login", (req, res) => {
                             yearOfGraduation: user.yearOfGraduation ? user.yearOfGraduation : ""
                         }
                         
-                        const articleIds = user.savedArticleIds;
+                        /*const articleIds = user.savedArticleIds;
                         console.log(articleIds);
                         if(articleIds.length === 0){
                             console.log("no saved articles")
@@ -240,7 +240,7 @@ generalRoutes.post("/login", (req, res) => {
                                 })
 
                                 //notification in every 1 minute
-                                /* 
+                                 
                                 cron.schedule('* * * * *',() => {
                                 
                                     transporter.sendMail(mailOptions, (error, info) => {
@@ -252,11 +252,11 @@ generalRoutes.post("/login", (req, res) => {
                                     });
     
                                 })
-                                 */
+                                 
                                 
                             });
     
-                        }
+                        }*/
                                 
                         let expirationSeconds = 31556926; // 1 year
                         jwt.sign(jwtPayload, process.env.SECRET, {
