@@ -245,7 +245,7 @@ generalRoutes.post("/login", (req, res) => {
                                 
                         let expirationSeconds = 31556926; // 1 year
                         jwt.sign(jwtPayload, process.env.SECRET, {
-                            expiresIn: "20h",
+                            expiresIn: expirationSeconds,
                         }, (err, token) => {
                             if (!err) {
                                 res.json({ success: true, token: token });
