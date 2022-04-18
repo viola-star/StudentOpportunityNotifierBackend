@@ -46,12 +46,18 @@ app.listen(port, () => {
 
                     let output = [];
                     articles.forEach(article => {
-                        //console.log(article.title);
-                        let detail = {
-                            'title': article.title,
-                            'link': article.link
+                        //console.log(Date.parse(article.applyBy));
+
+                        let currTime = new Date();
+                        if(currTime<= Date.parse(article.applyBy)){
+                            let detail = {
+                                'title': article.title,
+                                'link': article.link,
+                                'applyby' : article.applyBy
+                            }
+                            output.push(detail);
                         }
-                        output.push(detail);
+                        
                     })
                     console.log(output);
 
@@ -97,7 +103,7 @@ app.listen(port, () => {
 
                     //notification in every 1 minute
                     
-                    cron.schedule('* * * * *',() => {
+                    cron.schedule('*/5 * * * *',() => {
                     
                         transporter.sendMail(mailOptions, (error, info) => {
                             if (error) {
